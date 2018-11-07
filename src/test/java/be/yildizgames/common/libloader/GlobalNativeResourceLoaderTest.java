@@ -22,30 +22,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE  SOFTWARE.
  */
-
 package be.yildizgames.common.libloader;
 
 import be.yildizgames.common.exception.implementation.ImplementationException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Grégory Van den Borre
  */
-public class GlobalNativeResourceLoader {
+class GlobalNativeResourceLoaderTest {
 
-    private static final GlobalNativeResourceLoader INSTANCE = new GlobalNativeResourceLoader();
+    @Nested
+    class GetInstance {
 
-    private NativeResourceLoader loader = NativeResourceLoader.inJar();
-
-    public static GlobalNativeResourceLoader getInstance() {
-        return INSTANCE;
+        @Test
+        void happyFlow() {
+            Assertions.assertSame(GlobalNativeResourceLoader.getInstance(), GlobalNativeResourceLoader.getInstance());
+        }
     }
 
-    public void setNativeResourceLoader(NativeResourceLoader loader) {
-        ImplementationException.throwForNull(loader);
-        this.loader = loader;
+    @Nested
+    class GetLoader {
+
+        @Test
+        void happyFlow() {
+            Assertions.assertNotNull(GlobalNativeResourceLoader.getInstance().getLoader());
+        }
     }
 
-    public NativeResourceLoader getLoader() {
-        return this.loader;
+    @Nested
+    class SetNativeResourceLoader {
+
+        @Test
+        void happyFlow() {
+            GlobalNativeResourceLoader.getInstance().setNativeResourceLoader(NativeResourceLoader.inJar());
+        }
+
+        @Test
+        void withNull() {
+            Assertions.assertThrows(ImplementationException.class, () -> GlobalNativeResourceLoader.getInstance().setNativeResourceLoader(null));
+        }
     }
 }
