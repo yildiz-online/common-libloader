@@ -26,4 +26,4 @@
  * Contains the loader for native libraries.
  * @author Grégory Van den Borre
  */
-package be.yildizgames.common.nativeresources.loader;
+package be.yildizgames.common.libloader;
