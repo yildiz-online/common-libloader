@@ -34,13 +34,16 @@ import be.yildizgames.common.os.factory.OperatingSystems;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Vector;
 
 /**
@@ -62,7 +65,7 @@ public final class NativeResourceLoader {
     /**
      * Will contains the native libraries to be loaded.
      */
-    public final File libDirectory;
+    public final Path libDirectory;
 
     /**
      * Library file extension, can be .dll on windows, .so on linux.
@@ -77,7 +80,7 @@ public final class NativeResourceLoader {
     private final Unpacker jarHandler = CompressionFactory.zipUnpacker();
 
     private NativeResourceLoader(boolean decompress, OperatingSystem... systemToSupport) {
-        this(System.getProperty("user.home") + File.separator + "app-root" + File.separator + "data", decompress, systemToSupport);
+        this(Paths.get(System.getProperty("user.home")).resolve("app-root").resolve("data").toString(), decompress, systemToSupport);
     }
 
     private NativeResourceLoader(String path, boolean decompress, OperatingSystem... systemToSupport) {
@@ -85,15 +88,20 @@ public final class NativeResourceLoader {
         OperatingSystem nos = this.findSystem(systemToSupport);
         this.libraryExtension = nos.getExtension();
         this.directory = nos.getName();
-        this.libDirectory = new File(path);
+        this.libDirectory = Paths.get(path);
         if (decompress) {
-            Arrays.stream(System.getProperty("java.class.path", "").split(File.pathSeparator))
+            Arrays.stream(System.getProperty("java.class.path", "")
+                    .split(File.pathSeparator))
                     .filter(s -> s.endsWith(".jar"))
-                    .map(File::new)
-                    .filter(File::exists)
+                    .map(Paths::get)
+                    .filter(Files::exists)
                     .forEach(app -> jarHandler.unpackDirectoryToDirectory(app, this.directory, libDirectory));
         }
-        this.registerLibInDir();
+        try {
+            this.registerLibInDir();
+        } catch (IOException e) {
+            LOGGER.error("Cannot register libs", e);
+        }
     }
 
     /**
@@ -159,11 +167,11 @@ public final class NativeResourceLoader {
         if(lib == null) {
             throw new AssertionError("lib cannot be null.");
         }
-        File f = new File(lib.endsWith(libraryExtension) ? lib : lib + libraryExtension);
-        if (f.exists()) {
-            return f.getAbsolutePath();
+        Path f = Paths.get(lib.endsWith(libraryExtension) ? lib : lib + libraryExtension);
+        if (Files.exists(f)) {
+            return f.toAbsolutePath().toString();
         }
-        String nativePath = this.availableLib.get(f.getName());
+        String nativePath = this.availableLib.get(f.getFileName().toString());
         if (nativePath == null) {
             throw new AssertionError(lib + " has not been found in path.");
         }
@@ -191,19 +199,16 @@ public final class NativeResourceLoader {
      *
      * @param dir Directory holding the libraries.
      */
-    private void registerLibInDir(final File dir) {
-        if (dir.exists() && dir.isDirectory()) {
-            Optional
-                    .ofNullable(dir.listFiles(p -> p.isFile() && p.getName().endsWith(this.libraryExtension)))
-                    .ifPresent(files -> Arrays
-                            .stream(files)
-                            .forEach(f -> this.availableLib.put(f.getName(), f.getAbsolutePath())
-                    ));
+    private void registerLibInDir(final Path dir) throws IOException {
+        if (Files.exists(dir) && Files.isDirectory(dir)) {
+            Files.walk(dir)
+                    .filter(p -> Files.isRegularFile(p) && p.toString().endsWith(this.libraryExtension))
+                    .forEach(p -> this.availableLib.put(p.getFileName().toString(), p.toAbsolutePath().toString()));
         }
     }
 
-    private void registerLibInDir() {
-        registerLibInDir(new File(libDirectory.getAbsolutePath() + File.separator + this.directory));
+    private void registerLibInDir() throws IOException {
+        registerLibInDir(libDirectory.resolve(this.directory).toAbsolutePath());
     }
 
     /**
