@@ -201,9 +201,11 @@ public final class NativeResourceLoader {
      */
     private void registerLibInDir(final Path dir) throws IOException {
         if (Files.exists(dir) && Files.isDirectory(dir)) {
-            Files.walk(dir)
-                    .filter(p -> Files.isRegularFile(p) && p.toString().endsWith(this.libraryExtension))
-                    .forEach(p -> this.availableLib.put(p.getFileName().toString(), p.toAbsolutePath().toString()));
+            try(Stream<Path> walk = Files.walk(dir)) {
+                walk
+                        .filter(p -> Files.isRegularFile(p) && p.toString().endsWith(this.libraryExtension))
+                        .forEach(p -> this.availableLib.put(p.getFileName().toString(), p.toAbsolutePath().toString()));
+            }
         }
     }
 
