@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.stream.Stream;
 
 /**
  * Utility class to load the native library from the classpath or a jar.
