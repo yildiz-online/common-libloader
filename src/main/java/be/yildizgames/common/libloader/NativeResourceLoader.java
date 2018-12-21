@@ -27,11 +27,11 @@ package be.yildizgames.common.libloader;
 
 import be.yildizgames.common.compression.CompressionFactory;
 import be.yildizgames.common.compression.Unpacker;
-import be.yildizgames.common.logging.LogFactory;
 import be.yildizgames.common.os.OperatingSystem;
 import be.yildizgames.common.os.SystemUtil;
 import be.yildizgames.common.os.factory.OperatingSystems;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +54,7 @@ import java.util.stream.Stream;
  */
 public final class NativeResourceLoader {
 
-    private static final Logger LOGGER = LogFactory.getInstance().getLogger(NativeResourceLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NativeResourceLoader.class);
 
     /**
      * Directory containing the native libraries, win34,
