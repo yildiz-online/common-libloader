@@ -27,11 +27,11 @@ package be.yildizgames.common.libloader;
 
 import be.yildizgames.common.compression.CompressionFactory;
 import be.yildizgames.common.compression.Unpacker;
-import be.yildizgames.common.logging.LogFactory;
 import be.yildizgames.common.os.OperatingSystem;
 import be.yildizgames.common.os.SystemUtil;
 import be.yildizgames.common.os.factory.OperatingSystems;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.stream.Stream;
 
 /**
  * Utility class to load the native library from the classpath or a jar.
@@ -53,7 +54,7 @@ import java.util.Vector;
  */
 public final class NativeResourceLoader {
 
-    private static final Logger LOGGER = LogFactory.getInstance().getLogger(NativeResourceLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NativeResourceLoader.class);
 
     /**
      * Directory containing the native libraries, win34,
@@ -201,9 +202,11 @@ public final class NativeResourceLoader {
      */
     private void registerLibInDir(final Path dir) throws IOException {
         if (Files.exists(dir) && Files.isDirectory(dir)) {
-            Files.walk(dir)
-                    .filter(p -> Files.isRegularFile(p) && p.toString().endsWith(this.libraryExtension))
-                    .forEach(p -> this.availableLib.put(p.getFileName().toString(), p.toAbsolutePath().toString()));
+            try(Stream<Path> walk = Files.walk(dir)) {
+                walk
+                        .filter(p -> Files.isRegularFile(p) && p.toString().endsWith(this.libraryExtension))
+                        .forEach(p -> this.availableLib.put(p.getFileName().toString(), p.toAbsolutePath().toString()));
+            }
         }
     }
 
