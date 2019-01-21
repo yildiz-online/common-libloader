@@ -91,8 +91,11 @@ public final class NativeResourceLoader {
         this.directory = nos.getName();
         this.libDirectory = Paths.get(path);
         if (decompress) {
-            Arrays.stream(System.getProperty("java.class.path", "")
-                    .split(File.pathSeparator))
+            LOGGER.debug("Unpacking {} folder from jar to {} folder.", this.directory, libDirectory);
+            Arrays.stream(System.getProperty("java.class.path", "").split(File.pathSeparator))
+                    .forEach(System.out::println);
+
+            Arrays.stream(System.getProperty("java.class.path", "").split(File.pathSeparator))
                     .filter(s -> s.endsWith(".jar"))
                     .map(Paths::get)
                     .filter(Files::exists)
