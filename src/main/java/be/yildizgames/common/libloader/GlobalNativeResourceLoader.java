@@ -28,24 +28,35 @@ package be.yildizgames.common.libloader;
 import be.yildizgames.common.exception.implementation.ImplementationException;
 
 /**
+ * Global loader, can be used to use the same loader, no matter where called from.
  * @author Grégory Van den Borre
  */
 public class GlobalNativeResourceLoader {
 
+    /**
+     * Unique instance.
+     */
     private static final GlobalNativeResourceLoader INSTANCE = new GlobalNativeResourceLoader();
 
+    /**
+     * Current loader, default is in jar.
+     */
     private NativeResourceLoader loader = NativeResourceLoader.inJar();
 
+    /**
+     * Provide the global loader instance.
+     * @return The global loader.
+     */
     public static GlobalNativeResourceLoader getInstance() {
         return INSTANCE;
     }
 
-    public void setNativeResourceLoader(NativeResourceLoader loader) {
+    public final void setNativeResourceLoader(NativeResourceLoader loader) {
         ImplementationException.throwForNull(loader);
         this.loader = loader;
     }
 
-    public NativeResourceLoader getLoader() {
+    public final NativeResourceLoader getLoader() {
         return this.loader;
     }
 }
