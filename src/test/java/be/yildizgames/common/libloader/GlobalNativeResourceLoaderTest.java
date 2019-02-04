@@ -32,36 +32,36 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Grégory Van den Borre
  */
-class GlobalNativeResourceLoaderTest {
+public class GlobalNativeResourceLoaderTest {
 
     @Nested
-    class GetInstance {
+    public class GetInstance {
 
         @Test
-        void happyFlow() {
+        public void happyFlow() {
             Assertions.assertSame(GlobalNativeResourceLoader.getInstance(), GlobalNativeResourceLoader.getInstance());
         }
     }
 
     @Nested
-    class GetLoader {
+    public class GetLoader {
 
         @Test
-        void happyFlow() {
+        public void happyFlow() {
             Assertions.assertNotNull(GlobalNativeResourceLoader.getInstance().getLoader());
         }
     }
 
     @Nested
-    class SetNativeResourceLoader {
+    public class SetNativeResourceLoader {
 
         @Test
-        void happyFlow() {
+        public void happyFlow() {
             GlobalNativeResourceLoader.getInstance().setNativeResourceLoader(NativeResourceLoader.inJar());
         }
 
         @Test
-        void withNull() {
+        public void withNull() {
             Assertions.assertThrows(ImplementationException.class, () -> GlobalNativeResourceLoader.getInstance().setNativeResourceLoader(null));
         }
     }
