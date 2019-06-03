@@ -30,8 +30,6 @@ import be.yildizgames.common.compression.Unpacker;
 import be.yildizgames.common.os.OperatingSystem;
 import be.yildizgames.common.os.SystemUtil;
 import be.yildizgames.common.os.factory.OperatingSystems;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +52,7 @@ import java.util.stream.Stream;
  */
 public final class NativeResourceLoader {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NativeResourceLoader.class);
+    private static final System.Logger LOGGER = System.getLogger(NativeResourceLoader.class.getName());
 
     /**
      * Directory containing the native libraries, win34,
@@ -91,7 +89,7 @@ public final class NativeResourceLoader {
         this.directory = nos.getName();
         this.libDirectory = Paths.get(path);
         if (decompress) {
-            LOGGER.debug("Unpacking {} folder from jar to {} folder.", this.directory, libDirectory);
+            LOGGER.log(System.Logger.Level.DEBUG, "Unpacking {} folder from jar to {} folder.", this.directory, libDirectory);
 
             Arrays.stream(System.getProperty("java.class.path", "").split(File.pathSeparator))
                     .filter(s -> s.endsWith(".jar"))
@@ -102,7 +100,7 @@ public final class NativeResourceLoader {
         try {
             this.registerLibInDir();
         } catch (IOException e) {
-            LOGGER.error("Cannot register libs", e);
+            LOGGER.log(System.Logger.Level.ERROR, "Cannot register libs", e);
         }
     }
 
@@ -190,9 +188,9 @@ public final class NativeResourceLoader {
         String nativePath;
         for (String lib : libs) {
             nativePath = getLibPath(lib);
-            LOGGER.debug("Loading native : {}", nativePath);
+            LOGGER.log(System.Logger.Level.DEBUG, "Loading native : {}", nativePath);
             System.load(nativePath);
-            LOGGER.debug("{} loaded.", nativePath);
+            LOGGER.log(System.Logger.Level.DEBUG, "{} loaded.", nativePath);
         }
     }
 
