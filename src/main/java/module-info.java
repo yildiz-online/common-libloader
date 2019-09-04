@@ -27,6 +27,5 @@ module be.yildizgames.common.libloader {
     exports be.yildizgames.common.libloader;
 
     requires be.yildizgames.common.compression;
-    requires be.yildizgames.common.exception;
     requires be.yildizgames.common.os;
 }

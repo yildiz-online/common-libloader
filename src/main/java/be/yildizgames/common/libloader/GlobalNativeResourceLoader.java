@@ -25,7 +25,7 @@
 
 package be.yildizgames.common.libloader;
 
-import be.yildizgames.common.exception.implementation.ImplementationException;
+import java.util.Objects;
 
 /**
  * Global loader, can be used to use the same loader, no matter where called from.
@@ -52,7 +52,7 @@ public class GlobalNativeResourceLoader {
     }
 
     public final void setNativeResourceLoader(NativeResourceLoader loader) {
-        ImplementationException.throwForNull(loader);
+        Objects.requireNonNull(loader);
         this.loader = loader;
     }
 

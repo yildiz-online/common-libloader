@@ -24,7 +24,6 @@
  */
 package be.yildizgames.common.libloader;
 
-import be.yildizgames.common.exception.implementation.ImplementationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -62,7 +61,7 @@ public class GlobalNativeResourceLoaderTest {
 
         @Test
         public void withNull() {
-            Assertions.assertThrows(ImplementationException.class, () -> GlobalNativeResourceLoader.getInstance().setNativeResourceLoader(null));
+            Assertions.assertThrows(NullPointerException.class, () -> GlobalNativeResourceLoader.getInstance().setNativeResourceLoader(null));
         }
     }
 }
