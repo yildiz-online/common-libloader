@@ -45,17 +45,26 @@ public class GlobalNativeResourceLoader {
 
     /**
      * Provide the global loader instance.
-     * @return The global loader.
+     * @return The global loader, never null.
      */
     public static GlobalNativeResourceLoader getInstance() {
         return INSTANCE;
     }
 
+    /**
+     * Change the loader to use.
+     * This will only impact the new calls to getLoader().
+     * @param loader New loader to use, null is not allowed.
+     */
     public final void setNativeResourceLoader(NativeResourceLoader loader) {
         Objects.requireNonNull(loader);
         this.loader = loader;
     }
 
+    /**
+     * Provider the global loader.
+     * @return The loader to use, never null.
+     */
     public final NativeResourceLoader getLoader() {
         return this.loader;
     }

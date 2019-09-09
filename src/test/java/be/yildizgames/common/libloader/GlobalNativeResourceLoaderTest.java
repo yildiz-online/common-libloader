@@ -56,7 +56,9 @@ public class GlobalNativeResourceLoaderTest {
 
         @Test
         public void happyFlow() {
-            GlobalNativeResourceLoader.getInstance().setNativeResourceLoader(NativeResourceLoader.inJar());
+            NativeResourceLoader loader = NativeResourceLoader.inJar();
+            GlobalNativeResourceLoader.getInstance().setNativeResourceLoader(loader);
+            Assertions.assertSame(loader, GlobalNativeResourceLoader.getInstance().getLoader());
         }
 
         @Test

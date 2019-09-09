@@ -37,12 +37,7 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -52,6 +47,9 @@ import java.util.stream.Stream;
  */
 public final class NativeResourceLoader {
 
+    /**
+     * Internal logger.
+     */
     private static final System.Logger LOGGER = System.getLogger(NativeResourceLoader.class.getName());
 
     /**
@@ -76,12 +74,26 @@ public final class NativeResourceLoader {
      */
     private final Map<String, String> availableLib = new HashMap<>();
 
+    /**
+     * Utility to unpack the jars, use zip algorithm.
+     */
     private final Unpacker jarHandler = CompressionFactory.zipUnpacker();
 
+    /**
+     * Create a new instance, root path to use is defaulted as user_home/app-root/data.
+     * @param decompress Flag to unpack or not.
+     * @param systemToSupport List of systems to support, cannot be null.
+     */
     private NativeResourceLoader(boolean decompress, OperatingSystem... systemToSupport) {
         this(Paths.get(System.getProperty("user.home")).resolve("app-root").resolve("data").toString(), decompress, systemToSupport);
     }
 
+    /**
+     * Create a new instance
+     * @param path Path where are stored the libs, cannot be null.
+     * @param decompress Flag to unpack or not.
+     * @param systemToSupport List of systems to support, cannot be null.
+     */
     private NativeResourceLoader(String path, boolean decompress, OperatingSystem... systemToSupport) {
         super();
         OperatingSystem nos = this.findSystem(systemToSupport);
@@ -106,22 +118,26 @@ public final class NativeResourceLoader {
 
     /**
      * Retrieve the libraries in the class pass, decompress them and register them.
-     * @param systemToSupport The list of system to support.
-     * @return The created loader.
+     * @param systemToSupport The list of system to support, cannot be null.
+     * @return The created loader, never null.
      */
     public static NativeResourceLoader inJar(OperatingSystem... systemToSupport) {
         return new NativeResourceLoader(true, systemToSupport);
     }
 
+    /**
+     * Retrieve the libraries in the class pass, decompress them and register them, support all systems.
+     * @return The created loader, never null.
+     */
     public static NativeResourceLoader inJar() {
         return new NativeResourceLoader(true, OperatingSystems.getAll());
     }
 
     /**
      * Retrieve the libraries in the class pass, decompress them in the provided path and register them.
-     * @param path Directory where the libs will be copied.
-     * @param systemToSupport The list of system to support.
-     * @return The created loader.
+     * @param path Directory where the libs will be copied, cannot be null.
+     * @param systemToSupport The list of system to support, cannot be null.
+     * @return The created loader, never null.
      */
     public static NativeResourceLoader inJar(String path, OperatingSystem... systemToSupport) {
         return new NativeResourceLoader(path, true, systemToSupport);
@@ -154,7 +170,7 @@ public final class NativeResourceLoader {
                 .stream(systemToSupport)
                 .filter(OperatingSystem::isCurrent)
                 .findFirst()
-                .orElseThrow(AssertionError::new);
+                .orElseThrow(IllegalStateException::new);
     }
 
     /**
@@ -164,16 +180,13 @@ public final class NativeResourceLoader {
      * @return The absolute path of the given library.
      */
     public String getLibPath(final String lib) {
-        if(lib == null) {
-            throw new AssertionError("lib cannot be null.");
-        }
         Path f = Paths.get(lib.endsWith(libraryExtension) ? lib : lib + libraryExtension);
         if (Files.exists(f)) {
             return f.toAbsolutePath().toString();
         }
         String nativePath = this.availableLib.get(f.getFileName().toString());
         if (nativePath == null) {
-            throw new AssertionError(lib + " has not been found in path.");
+            throw new IllegalStateException(lib + " has not been found in path.");
         }
         return nativePath;
     }

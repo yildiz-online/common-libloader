@@ -69,7 +69,7 @@ public class NativeResourceLoaderTest {
         public void withNotExistingFileNotRegistered() throws IOException {
             Path folder = Files.createTempDirectory("test");
             NativeResourceLoader nrl = NativeResourceLoader.inPath(folder.toAbsolutePath().toFile().getAbsolutePath(), this.systems);
-            assertThrows(AssertionError.class, () -> nrl.getLibPath("lib"));
+            assertThrows(IllegalStateException.class, () -> nrl.getLibPath("lib"));
             Files.delete(folder);
         }
 
@@ -77,7 +77,7 @@ public class NativeResourceLoaderTest {
         public void withNullFilePath() throws IOException {
             Path folder = Files.createTempDirectory("test");
             NativeResourceLoader nrl = NativeResourceLoader.inPath(folder.toAbsolutePath().toFile().getAbsolutePath(), this.systems);
-            assertThrows(AssertionError.class, () -> nrl.getLibPath(null));
+            assertThrows(NullPointerException.class, () -> nrl.getLibPath(null));
             Files.delete(folder);
         }
     }
