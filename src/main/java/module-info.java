@@ -22,7 +22,7 @@
  *
  */
 
-module be.yildizgames.common.libloader {
+open module be.yildizgames.common.libloader {
 
     exports be.yildizgames.common.libloader;
 
