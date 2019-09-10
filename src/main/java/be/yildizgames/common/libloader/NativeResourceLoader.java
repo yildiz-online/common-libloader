@@ -195,7 +195,7 @@ public final class NativeResourceLoader {
      * Load a native library, it will check if it is contained in a jar, if so,
      * the library will be extracted in a temporary place and loaded from there.
      *
-     * @param libs Native library name to load.
+     * @param libs Native library name to load, cannot be null.
      */
     public void loadLibrary(final String... libs) {
         String nativePath;
