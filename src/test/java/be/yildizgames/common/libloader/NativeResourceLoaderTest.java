@@ -40,15 +40,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Grégory Van den Borre
  */
-public class NativeResourceLoaderTest {
+class NativeResourceLoaderTest {
 
     @Nested
-    public class GetLibPath {
+    class GetLibPath {
 
         private final OperatingSystem[] systems = OperatingSystems.getAll();
 
         @Test
-        public void withExistingFileWithExtension() throws IOException {
+        void withExistingFileWithExtension() throws IOException {
             Path folder = Files.createTempDirectory("test");
             NativeResourceLoader nrl = NativeResourceLoader.inPath(folder.toAbsolutePath().toFile().getAbsolutePath(), this.systems);
             File f = getFile("lib_out" + nrl.libraryExtension);
@@ -57,7 +57,7 @@ public class NativeResourceLoaderTest {
         }
 
         @Test
-        public void withExistingFileWithoutExtension() throws IOException {
+        void withExistingFileWithoutExtension() throws IOException {
             Path folder = Files.createTempDirectory("test");
             NativeResourceLoader nrl = NativeResourceLoader.inPath(folder.toAbsolutePath().toFile().getAbsolutePath(), this.systems);
             File f = getFile("lib_out" + nrl.libraryExtension);
@@ -66,7 +66,7 @@ public class NativeResourceLoaderTest {
         }
 
         @Test
-        public void withNotExistingFileNotRegistered() throws IOException {
+        void withNotExistingFileNotRegistered() throws IOException {
             Path folder = Files.createTempDirectory("test");
             NativeResourceLoader nrl = NativeResourceLoader.inPath(folder.toAbsolutePath().toFile().getAbsolutePath(), this.systems);
             assertThrows(IllegalStateException.class, () -> nrl.getLibPath("lib"));
@@ -74,7 +74,7 @@ public class NativeResourceLoaderTest {
         }
 
         @Test
-        public void withNullFilePath() throws IOException {
+        void withNullFilePath() throws IOException {
             Path folder = Files.createTempDirectory("test");
             NativeResourceLoader nrl = NativeResourceLoader.inPath(folder.toAbsolutePath().toFile().getAbsolutePath(), this.systems);
             assertThrows(NullPointerException.class, () -> nrl.getLibPath(null));
@@ -83,12 +83,12 @@ public class NativeResourceLoaderTest {
     }
 
     @Nested
-    public class LoadLibrary {
+    class LoadLibrary {
 
         private final OperatingSystem[] systems = OperatingSystems.getAll();
 
         @Test
-        public void happyFlow() throws IOException {
+        void happyFlow() throws IOException {
             Path folder = Files.createTempDirectory("test");
             NativeResourceLoader nrl = NativeResourceLoader.inPath(folder.toAbsolutePath().toFile().getAbsolutePath(), this.systems);
 
@@ -98,6 +98,16 @@ public class NativeResourceLoaderTest {
 
             assertThrows(UnsatisfiedLinkError.class, () -> nrl.loadLibrary(libs));
             Files.delete(folder);
+        }
+
+        @Test
+        void nullLibs() throws IOException {
+            Path folder = Files.createTempDirectory("test");
+            NativeResourceLoader nrl = NativeResourceLoader.inPath(folder.toAbsolutePath().toFile().getAbsolutePath(), this.systems);
+            String[] libs = new String[]{};
+            assertThrows(NullPointerException.class, () -> nrl.loadLibrary((String[])null));
+            Files.delete(folder);
+
         }
     }
     
