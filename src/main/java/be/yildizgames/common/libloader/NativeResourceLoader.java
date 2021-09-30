@@ -25,8 +25,6 @@
 package be.yildizgames.common.libloader;
 
 
-import be.yildizgames.common.compression.CompressionFactory;
-import be.yildizgames.common.compression.Unpacker;
 import be.yildizgames.common.os.OperatingSystem;
 import be.yildizgames.common.os.SystemUtil;
 import be.yildizgames.common.os.factory.OperatingSystems;
@@ -36,8 +34,12 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 import java.util.stream.Stream;
 
 /**
@@ -75,17 +77,12 @@ public final class NativeResourceLoader {
     private final Map<String, String> availableLib = new HashMap<>();
 
     /**
-     * Utility to unpack the jars, use zip algorithm.
-     */
-    private final Unpacker jarHandler = CompressionFactory.zipUnpacker();
-
-    /**
      * Create a new instance, root path to use is defaulted as user_home/app-root/data.
      * @param decompress Flag to unpack or not.
      * @param systemToSupport List of systems to support, cannot be null.
      */
     private NativeResourceLoader(boolean decompress, OperatingSystem... systemToSupport) {
-        this(Paths.get(System.getProperty("user.home")).resolve("app-root").resolve("data").toString(), decompress, systemToSupport);
+        this(Path.of(System.getProperty("user.home")).resolve("app-root").resolve("data").toString(), decompress, systemToSupport);
     }
 
     /**
@@ -99,20 +96,33 @@ public final class NativeResourceLoader {
         OperatingSystem nos = this.findSystem(systemToSupport);
         this.libraryExtension = nos.getExtension();
         this.directory = nos.getName();
-        this.libDirectory = Paths.get(path);
+        this.libDirectory = Path.of(path);
         if (decompress) {
             LOGGER.log(System.Logger.Level.DEBUG, "Unpacking {} folder from jar to {} folder.", this.directory, libDirectory);
 
             Arrays.stream(System.getProperty("java.class.path", "").split(File.pathSeparator))
                     .filter(s -> s.endsWith(".jar"))
-                    .map(Paths::get)
+                    .map(Path::of)
                     .filter(Files::exists)
-                    .forEach(app -> jarHandler.unpackDirectoryToDirectory(app, this.directory, libDirectory));
+                    .forEach(app -> unpackDirectoryToDirectory(app, Path.of(this.directory), libDirectory));
         }
         try {
             this.registerLibInDir();
         } catch (IOException e) {
             LOGGER.log(System.Logger.Level.ERROR, "Cannot register libs", e);
+        }
+    }
+
+    private void unpackDirectoryToDirectory(Path app, Path path, Path destination) {
+        try {
+            var url = NativeResourceLoader.class.getResource("/" + path);
+            if(Files.notExists(destination)) {
+                try (var in = url.openStream()) {
+                    Files.copy(in, destination);
+                }
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -180,7 +190,7 @@ public final class NativeResourceLoader {
      * @return The absolute path of the given library.
      */
     public String getLibPath(final String lib) {
-        Path f = Paths.get(lib.endsWith(libraryExtension) ? lib : lib + libraryExtension);
+        Path f = Path.of(lib.endsWith(libraryExtension) ? lib : lib + libraryExtension);
         if (Files.exists(f)) {
             return f.toAbsolutePath().toString();
         }
@@ -241,12 +251,11 @@ public final class NativeResourceLoader {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public List<String> getLoadedLibraries() {
         try {
             Field lib = ClassLoader.class.getDeclaredField("loadedLibraryNames");
             lib.setAccessible(true);
-            return new ArrayList<>(Vector.class.cast(lib.get(ClassLoader.getSystemClassLoader())));
+            return new ArrayList<String>(Vector.class.cast(lib.get(ClassLoader.getSystemClassLoader())));
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new IllegalArgumentException(e);
         }
