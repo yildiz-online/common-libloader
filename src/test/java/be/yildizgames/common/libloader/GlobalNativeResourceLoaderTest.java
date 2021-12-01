@@ -25,12 +25,14 @@
 package be.yildizgames.common.libloader;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Grégory Van den Borre
  */
+@Disabled
 class GlobalNativeResourceLoaderTest {
 
     @Nested

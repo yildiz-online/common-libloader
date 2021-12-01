@@ -99,12 +99,7 @@ public final class NativeResourceLoader {
         this.libDirectory = Path.of(path);
         if (decompress) {
             LOGGER.log(System.Logger.Level.DEBUG, "Unpacking {} folder from jar to {} folder.", this.directory, libDirectory);
-
-            Arrays.stream(System.getProperty("java.class.path", "").split(File.pathSeparator))
-                    .filter(s -> s.endsWith(".jar"))
-                    .map(Path::of)
-                    .filter(Files::exists)
-                    .forEach(app -> unpackDirectoryToDirectory(app, Path.of(this.directory), libDirectory));
+            unpackDirectoryToDirectory(Path.of(this.directory), libDirectory);
         }
         try {
             this.registerLibInDir();
@@ -113,10 +108,10 @@ public final class NativeResourceLoader {
         }
     }
 
-    private void unpackDirectoryToDirectory(Path app, Path path, Path destination) {
+    private void unpackDirectoryToDirectory(Path path, Path destination) {
         try {
             var url = NativeResourceLoader.class.getResource("/" + path);
-            if(Files.notExists(destination)) {
+            if (Files.notExists(destination)) {
                 try (var in = url.openStream()) {
                     Files.copy(in, destination);
                 }
